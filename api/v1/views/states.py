@@ -19,7 +19,7 @@ def get_states():
     for state in states.values():
         state_dict = state.to_dict()
         states_list.append(state_dict)
-    return jsonify(states_list)
+    return jsonify(states_list), 200
 
 
 @app_views.route('/states/<state_id>', methods=['GET'])
@@ -29,7 +29,7 @@ def get_state(state_id):
     if not state:
         abort(404)
     state_dict = state.to_dict()
-    return jsonify(state_dict)
+    return jsonify(state_dict), 200
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'])
@@ -54,7 +54,7 @@ def create_state():
     state = State(**request_body)
     state.save()
     state_dict = state.to_dict()
-    return jsonify(state_dict), 200
+    return jsonify(state_dict), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'])
