@@ -1,17 +1,17 @@
 #!/usr/bin/python3
-"""Handles all RESTful API actions for `Amenity`"""
-from api.v1.views import app_views
-from models import storage
+""" objects that handles all default RestFul API actions for Amenities"""
 from models.amenity import Amenity
-from flask import jsonify, abort, make_response, request
+from models import storage
+from api.v1.views import app_views
+from flask import abort, jsonify, make_response, request
+from flasgger.utils import swag_from
 
 
-@app_views.route("/amenities", strict_slashes=False)
-def amenities():
-    """Retrieve list of all `Amenity` objects
-
-    Returns:
-        `flask.Response`: List of all the amenities
+@app_views.route('/amenities', methods=['GET'], strict_slashes=False)
+@swag_from('documentation/amenity/all_amenities.yml')
+def get_amenities():
+    """
+    Retrieves a list of all amenities
     """
     all_amenities = storage.all(Amenity).values()
     list_amenities = []
@@ -20,16 +20,11 @@ def amenities():
     return jsonify(list_amenities)
 
 
-@app_views.route("/amenities/<amenity_id>", strict_slashes=False)
-def amenity(amenity_id):
-    """Retrieve one `Amenity`
-
-    Args:
-        amenity_id (str): Amenity identifier
-
-    Returns:
-        flask.Response: An amenity in json
-    """
+@app_views.route('/amenities/<amenity_id>/', methods=['GET'],
+                 strict_slashes=False)
+@swag_from('documentation/amenity/get_amenity.yml', methods=['GET'])
+def get_amenity(amenity_id):
+    """ Retrieves an amenity """
     amenity = storage.get(Amenity, amenity_id)
     if not amenity:
         abort(404)
@@ -37,20 +32,14 @@ def amenity(amenity_id):
     return jsonify(amenity.to_dict())
 
 
-@app_views.route("/amenities/<amenity_id>", methods=["DELETE"],
+@app_views.route('/amenities/<amenity_id>', methods=['DELETE'],
                  strict_slashes=False)
+@swag_from('documentation/amenity/delete_amenity.yml', methods=['DELETE'])
 def delete_amenity(amenity_id):
-    """Delete an amenity.
-
-    Args:
-        amenity_id (str): The ID of the amenity.
-
-    Returns:
-        dict: An empty JSON.
-
-    Raises:
-        404: If the specified amenity_id does not exist.
     """
+    Deletes an amenity  Object
+    """
+
     amenity = storage.get(Amenity, amenity_id)
 
     if not amenity:
@@ -62,16 +51,11 @@ def delete_amenity(amenity_id):
     return make_response(jsonify({}), 200)
 
 
-@app_views.route("/amenities", methods=["POST"], strict_slashes=False)
-def create_amenity():
-    """Create an amenity
-
-    Returns:
-        dict: New amenity in JSON
-
-    Raises:
-        400: If request body is not a valid JSON
-        400: If the payload does not contain the key `name`
+@app_views.route('/amenities', methods=['POST'], strict_slashes=False)
+@swag_from('documentation/amenity/post_amenity.yml', methods=['POST'])
+def post_amenity():
+    """
+    Creates an amenity
     """
     if not request.get_json():
         abort(400, description="Not a JSON")
@@ -85,10 +69,13 @@ def create_amenity():
     return make_response(jsonify(instance.to_dict()), 201)
 
 
-@app_views.route("/amenities/<amenity_id>", methods=["PUT"],
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'],
                  strict_slashes=False)
-def update_amenity(amenity_id):
-    """Update Amenity object by ID."""
+@swag_from('documentation/amenity/put_amenity.yml', methods=['PUT'])
+def put_amenity(amenity_id):
+    """
+    Updates an amenity
+    """
     if not request.get_json():
         abort(400, description="Not a JSON")
 
@@ -98,6 +85,7 @@ def update_amenity(amenity_id):
 
     if not amenity:
         abort(404)
+
     data = request.get_json()
     for key, value in data.items():
         if key not in ignore:
