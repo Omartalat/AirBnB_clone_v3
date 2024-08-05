@@ -63,4 +63,4 @@ def update_amenity(amenity_id):
     for key, val in data.items():
         setattr(amenity, key, val)
     amenity.save()
-    return jsonify(amenity.to_dict()), 200 
+    return jsonify(amenity.to_dict()), 200
